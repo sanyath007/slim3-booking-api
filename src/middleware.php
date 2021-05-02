@@ -44,6 +44,7 @@ $container['jwt'] = function($c) {
     return new StdClass;
 };
 
+// JWT middleware
 $app->add(new Slim\Middleware\JwtAuthentication([
     "path"          => '/api',
     "logger"        => $container['logger'],
@@ -63,6 +64,7 @@ $app->add(new Slim\Middleware\JwtAuthentication([
     }
 ]));
 
+// CORS middleware
 $app->add(function ($req, $res, $next) {
     $response = $next($req, $res);
     return $response
@@ -71,6 +73,7 @@ $app->add(function ($req, $res, $next) {
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 });
 
+// Controllers
 $container['HomeController'] = function($c) {
     return new App\Controllers\HomeController($c);
 };
