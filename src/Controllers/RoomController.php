@@ -30,7 +30,7 @@ class RoomController extends Controller
 
     public function getById($request, $response, $args)
     {
-        $room = Room::where('id', $args['id'])->first();
+        $room = Room::where('room_id', $args['id'])->first();
                     
         $data = json_encode($room, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE);
 
