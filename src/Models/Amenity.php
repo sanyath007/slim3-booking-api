@@ -8,8 +8,8 @@ class Amenity extends Model
 {
     protected $table = "amenities";
 
-    // public function room()
-    // {
-    //     return $this->hasMany(Room::class, 'unit', 'unit_id');
-    // }
+    public function room()
+    {
+        return $this->hasMany(RoomAmenities::class, 'amenity_id', 'amenity_id');
+    }
 }
