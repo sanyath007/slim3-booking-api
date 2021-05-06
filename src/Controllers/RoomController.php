@@ -164,7 +164,7 @@ class RoomController extends Controller
             $room->room_group = $post['room_group'];
             $room->building = $post['building'];
             $room->floor = $post['floor'];
-            $room->room_status = 0;
+            // $room->room_status = 0;
 
             /** Upload image */
             $img_url = $this->uploadImage($post['room_img_url'], $upload_url);
