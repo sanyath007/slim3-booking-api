@@ -161,14 +161,46 @@ class BookingController extends Controller
     public function cancel($request, $response, $args)
     {
         try {
-            if(Booking::where('book_id', $args['id'])->update(['book_status' => '3'])) {
+            if(Booking::where('book_id', $args['id'])->update(['book_status' => '9'])) {
                 return $response
                         ->withStatus(200)
                         ->withHeader("Content-Type", "application/json")
                         ->write(json_encode([
                             'status' => 1,
                             'message' => 'Canceling successfully',
-                            'booking' => $booking
+                            'booking' => Booking::where('book_id', $args['id'])->first(),
+                        ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
+            } else {
+                return $response
+                    ->withStatus(500)
+                    ->withHeader("Content-Type", "application/json")
+                    ->write(json_encode([
+                        'status' => 0,
+                        'message' => 'Something went wrong!!'
+                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
+            }
+        } catch (\Exception $ex) {
+            return $response
+                    ->withStatus(500)
+                    ->withHeader("Content-Type", "application/json")
+                    ->write(json_encode([
+                        'status' => 0,
+                        'message' => $ex->getMessage()
+                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
+        }
+    }
+
+    public function discharge($request, $response, $args)
+    {
+        try {
+            if(Booking::where('book_id', $args['id'])->update(['book_status' => '3'])) {
+                return $response
+                        ->withStatus(200)
+                        ->withHeader("Content-Type", "application/json")
+                        ->write(json_encode([
+                            'status' => 1,
+                            'message' => 'Discharging successfully',
+                            'booking' => Booking::where('book_id', $args['id'])->first(),
                         ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
             } else {
                 return $response
