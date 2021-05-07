@@ -53,7 +53,8 @@ $app->put('/bookings/{id}/cancel', 'BookingController:cancel');
 $app->put('/bookings/{id}/discharge', 'BookingController:discharge');
 $app->delete('/bookings/{id}', 'BookingController:delete');
 $app->post('/bookings/checkin', 'BookingController:checkin');
-$app->put('/bookings/checkout/{bookId}/{roomId}', 'BookingController:checkout');
+$app->put('/bookings/{id}/{roomId}/checkout', 'BookingController:checkout');
+$app->put('/bookings/{id}/{roomId}/cancel-checkin', 'BookingController:cancelCheckin');
 
 /** Routes to person db */
 $app->get('/depts', 'DeptController:getAll');

@@ -254,6 +254,40 @@ class BookingController extends Controller
         }
     }
 
+    public function cancelCheckin($request, $response, $args)
+    {
+        try {
+            if(BookingRoom::where(['book_id' => $args['id'], 'room_id' => $args['roomId']])->delete()) {
+                Booking::where('book_id', $args['id'])->update(['book_status' => 0]);
+                Room::where('room_id', $args['roomId'])->update(['room_status' => 0]);
+
+                return $response
+                    ->withStatus(200)
+                    ->withHeader("Content-Type", "application/json")
+                    ->write(json_encode([
+                        'status' => 1,
+                        'message' => 'Cancelation checkin successfully'
+                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
+            } else {
+                return $response
+                    ->withStatus(500)
+                    ->withHeader("Content-Type", "application/json")
+                    ->write(json_encode([
+                        'status' => 0,
+                        'message' => 'Something went wrong!!'
+                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
+            }
+        } catch (\Exception $ex) {
+            return $response
+                    ->withStatus(500)
+                    ->withHeader("Content-Type", "application/json")
+                    ->write(json_encode([
+                        'status' => 0,
+                        'message' => $ex->getMessage()
+                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
+        }
+    }
+
     public function checkin($request, $response, $args)
     {
         try {
@@ -277,7 +311,7 @@ class BookingController extends Controller
                     ->withHeader("Content-Type", "application/json")
                     ->write(json_encode([
                         'status' => 1,
-                        'message' => 'Insertion successfully',
+                        'message' => 'Checking in successfully',
                         'data' => $br,
                     ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
             } else {
@@ -319,7 +353,7 @@ class BookingController extends Controller
                     ->withHeader("Content-Type", "application/json")
                     ->write(json_encode([
                         'status' => 1,
-                        'message' => 'Insertion successfully',
+                        'message' => 'Checking out successfully',
                         'data' => $br,
                     ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
             } else {
