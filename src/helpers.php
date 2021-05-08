@@ -28,10 +28,10 @@ function paginate($model, $recordPerPage, $currenPage, $request)
             'from' => $offset + 1,
             'to' => $lastRecordPerPage,
             'path'  => strrpos($link, '&') ? substr($link, 0, strrpos($link, '&')) : substr($link, 0, strrpos($link, '?')),
-            'first_page_url' => $link. '?page=1',
-            'prev_page_url' => (!$prev) ? $prev : $link. '?page=' .$prev,
-            'next_page_url' => (!$next) ? $next : $link. '?page=' .$next,
-            'last_page_url' => $link. '?page=' .$lastPage
+            'first_page_url' => $link. 'page=1',
+            'prev_page_url' => (!$prev) ? $prev : $link. 'page=' .$prev,
+            'next_page_url' => (!$next) ? $next : $link. 'page=' .$next,
+            'last_page_url' => $link. 'page=' .$lastPage
         ]
     ];
 }
