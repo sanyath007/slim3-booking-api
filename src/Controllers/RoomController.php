@@ -15,8 +15,7 @@ class RoomController extends Controller
         $page = (int)$request->getQueryParam('page');
 
         if ($page) {
-            $link = 'http://localhost'. $request->getServerParam('REDIRECT_URL');
-            $data = paginate(Room::with('roomType', 'roomGroup', 'building')->orderBy('room_no'), 10, $page, $link);
+            $data = paginate(Room::with('roomType', 'roomGroup', 'building')->orderBy('room_no'), 10, $page, $request);
         } else {
             $data = [
                 'items' => Room::with('roomType', 'roomGroup', 'building')->orderBy('room_no')->get()

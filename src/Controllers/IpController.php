@@ -17,8 +17,6 @@ class IpController extends Controller
 
         if(!empty($ward)) array_push($conditions, ['ward' => $ward]);
 
-        $link = 'http://localhost'. $request->getServerParam('REDIRECT_URL');
-
         if(count($conditions) > 0) {
             $model = Ip::with('patient', 'ward')
                         ->whereNull('dchdate')
@@ -28,7 +26,8 @@ class IpController extends Controller
                                 ->from('ipt_newborn')
                                 ->whereColumn('ipt_newborn.an', 'ipt.an');
                         })
-                        ->where($conditions);
+                        ->where($conditions)
+                        ->orderBy('regdate');
         } else {
             $model = Ip::with('patient', 'ward')
                         ->whereNull('dchdate')
@@ -37,17 +36,16 @@ class IpController extends Controller
                             $q->select(DB::raw(1))
                                 ->from('ipt_newborn')
                                 ->whereColumn('ipt_newborn.an', 'ipt.an');
-                        });
+                        })
+                        ->orderBy('regdate');
         }
 
-        $bookings = paginate($model, 'regdate', 10, $page, $link);
-        
-        $data = json_encode($bookings, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE);
+        $bookings = paginate($model, 10, $page, $request);
 
         return $response
                 ->withStatus(200)
                 ->withHeader("Content-Type", "application/json")
-                ->write($data); 
+                ->write(json_encode($bookings, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE)); 
     }
     
     public function getById($request, $response, $args)

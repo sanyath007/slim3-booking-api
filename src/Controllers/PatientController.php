@@ -11,18 +11,15 @@ class PatientController extends Controller
     public function getAll($request, $response, $args)
     {
         $page = (int)$request->getQueryParam('page');
-        $link = 'http://localhost'. $request->getServerParam('REDIRECT_URL');
 
-        $model = Patient::where('death', '<>', 'Y');
+        $model = Patient::where('death', '<>', 'Y')->orderBy('hn');
 
-        $bookings = paginate($model, 'hn', 10, $page, $link);
-        
-        $data = json_encode($bookings, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE);
+        $bookings = paginate($model, 10, $page, $request);
 
         return $response
                 ->withStatus(200)
                 ->withHeader("Content-Type", "application/json")
-                ->write($data);
+                ->write(json_encode($bookings, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
     }
     
     public function getById($request, $response, $args)

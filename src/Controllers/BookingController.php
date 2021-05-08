@@ -50,7 +50,8 @@ class BookingController extends Controller
                     ->when(!empty($searchStr) ,function($q) use ($ip) {
                         $q->whereIn('an', $ip);
                     })
-                    ->where('book_status', '=', 0);
+                    ->where('book_status', '=', 0)
+                    ->orderBy('book_id');
 
         $bookings = paginate($model, 10, $page, $request);
 
