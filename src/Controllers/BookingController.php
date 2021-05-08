@@ -30,6 +30,8 @@ class BookingController extends Controller
         $page = (int)$request->getQueryParam('page');
         $searchStr = $request->getQueryParam('search');
 
+        // TODO: separate search section to another method
+        /** ======== Search by patient data section ======== */
         $ip = [];
         if(!empty($searchStr)) {
             $conditions = [];
@@ -42,8 +44,7 @@ class BookingController extends Controller
                     ->where($conditions)
                     ->pluck('ipt.an');
         }
-
-        $link = 'http://localhost'. $request->getServerParam('REDIRECT_URL');
+        /** ======== Search by patient data section ======== */
 
         $model = Booking::with('ip','ip.ward','ip.patient','room','user')
                     ->when(!empty($searchStr) ,function($q) use ($ip) {
@@ -51,14 +52,12 @@ class BookingController extends Controller
                     })
                     ->where('book_status', '=', 0);
 
-        $bookings = paginate($model, 'book_id', 10, $page, $link);
-
-        $data = json_encode($bookings, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE);
+        $bookings = paginate($model, 10, $page, $request);
 
         return $response
                 ->withStatus(200)
                 ->withHeader("Content-Type", "application/json")
-                ->write($data);
+                ->write(json_encode($bookings, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
     }
     
     public function getById($request, $response, $args)
