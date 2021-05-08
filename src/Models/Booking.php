@@ -19,9 +19,9 @@ class Booking extends Model
         return $this->belongsTo(Ward::class, 'ward', 'ward');
     }
     
-    public function an()
+    public function ip()
     {
-        return $this->belongsTo(Ip::class, 'an', 'an');
+        return $this->hasOne(Ip::class, 'an', 'an');
     }
     
     public function user()

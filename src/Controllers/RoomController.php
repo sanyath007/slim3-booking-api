@@ -61,7 +61,7 @@ class RoomController extends Controller
                     ->get();
         $usedRooms = Room::where(['room_status' => 1])
                     ->with('bookingRoom', 'bookingRoom.booking')
-                    ->with('bookingRoom.booking.an', 'bookingRoom.booking.an.patient')
+                    ->with('bookingRoom.booking.ip', 'bookingRoom.booking.ip.patient')
                     ->orderBy('room_no')
                     ->get();
 

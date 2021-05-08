@@ -7,6 +7,7 @@ use Illuminate\Database\Capsule\Manager as DB;
 use App\Models\Booking;
 use App\Models\BookingRoom;
 use App\Models\Room;
+use App\Models\Ip;
 
 class BookingController extends Controller
 {
@@ -27,13 +28,31 @@ class BookingController extends Controller
     public function getAll($request, $response, $args)
     {
         $page = (int)$request->getQueryParam('page');
+        $searchStr = $request->getQueryParam('search');
+
+        $ip = [];
+        if(!empty($searchStr)) {
+            $conditions = [];
+            $searches = explode(':', $searchStr);
+            if(count($searches) > 0) {
+                array_push($conditions, [$searches[0], 'like', '%'.$searches[1].'%']);
+            }
+
+            $ip = Ip::join('patient', 'ipt.hn', '=','patient.hn')
+                    ->where($conditions)
+                    ->pluck('ipt.an');
+        }
+
         $link = 'http://localhost'. $request->getServerParam('REDIRECT_URL');
 
-        $model = Booking::where('book_status', '=', 0)
-                    ->with('an','an.patient','an.ward','room','user');
+        $model = Booking::with('ip','ip.ward','ip.patient','room','user')
+                    ->when(!empty($searchStr) ,function($q) use ($ip) {
+                        $q->whereIn('an', $ip);
+                    })
+                    ->where('book_status', '=', 0);
 
         $bookings = paginate($model, 'book_id', 10, $page, $link);
-        
+
         $data = json_encode($bookings, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE);
 
         return $response

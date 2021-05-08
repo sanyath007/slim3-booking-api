@@ -11,7 +11,7 @@ class Ip extends Model
 
     public function booking()
     {
-        return $this->hasMany(Booking::class, 'an', 'an');
+        return $this->belongsTo(Booking::class, 'an', 'an');
     }
 
     public function patient()
