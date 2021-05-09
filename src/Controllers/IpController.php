@@ -6,6 +6,7 @@ use App\Controllers\Controller;
 use Illuminate\Database\Capsule\Manager as DB;
 use App\Models\Ip;
 use App\Models\Patient;
+use App\Models\Booking;
 
 class IpController extends Controller
 {
@@ -13,32 +14,38 @@ class IpController extends Controller
     {
         $conditions = [];
         $page = (int)$request->getQueryParam('page');
-        $ward = (int)$request->getQueryParam('ward');
+        $ward = $request->getQueryParam('ward');
+        $searchStr = $request->getQueryParam('search');
+
+        // TODO: separate search section to another method
+        /** ======== Search by patient data section ======== */
+        if(!empty($searchStr)) {
+            $searches = explode(':', $searchStr);
+            if(count($searches) > 0) {
+                $fdName = $searches[0] !== 'an' ? 'patient.'.$searches[0] : 'ipt.'.$searches[0];
+                array_push($conditions, [$fdName, 'like', '%'.$searches[1].'%']);
+            }
+        }
+        /** ======== Search by patient data section ======== */
 
         if(!empty($ward)) array_push($conditions, ['ward' => $ward]);
 
-        if(count($conditions) > 0) {
-            $model = Ip::with('patient', 'ward')
-                        ->whereNull('dchdate')
-                        ->whereNotIn('ward', ['06','11','12'])
-                        ->whereNotExists(function($q) {
-                            $q->select(DB::raw(1))
-                                ->from('ipt_newborn')
-                                ->whereColumn('ipt_newborn.an', 'ipt.an');
-                        })
-                        ->where($conditions)
-                        ->orderBy('regdate');
-        } else {
-            $model = Ip::with('patient', 'ward')
-                        ->whereNull('dchdate')
-                        ->whereNotIn('ward', ['06','11','12'])
-                        ->whereNotExists(function($q) {
-                            $q->select(DB::raw(1))
-                                ->from('ipt_newborn')
-                                ->whereColumn('ipt_newborn.an', 'ipt.an');
-                        })
-                        ->orderBy('regdate');
-        }
+        $bookingIds = Booking::whereIn('book_status', [0, 1])->pluck('an');
+
+        $model = Ip::with('patient', 'ward')
+                    ->join('patient', 'ipt.hn', '=','patient.hn')
+                    ->whereNull('dchdate')
+                    ->whereNotIn('ward', ['06','11','12'])
+                    ->whereNotExists(function($q) {
+                        $q->select(DB::raw(1))
+                            ->from('ipt_newborn')
+                            ->whereColumn('ipt_newborn.an', 'ipt.an');
+                    })
+                    ->whereNotIn('an', $bookingIds)
+                    ->when(count($conditions) > 0, function($q) use ($conditions) {
+                        $q->where($conditions);
+                    })
+                    ->orderBy('regdate');
 
         $bookings = paginate($model, 10, $page, $request);
 
