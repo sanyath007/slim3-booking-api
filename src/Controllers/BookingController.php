@@ -374,7 +374,7 @@ class BookingController extends Controller
     public function checkout($request, $response, $args)
     {
         try {            
-            $br = BookingRoom::where('book_id', $args['bookId'])
+            $br = BookingRoom::where('book_id', $args['id'])
                     ->where('room_id', $args['roomId'])
                     ->update([
                         'checkout_date' => date('Y-m-d'),
@@ -382,7 +382,7 @@ class BookingController extends Controller
                     ]);
 
             if ($br) {
-                Booking::where('book_id', $args['bookId'])->update(['book_status' => 2]);
+                Booking::where('book_id', $args['id'])->update(['book_status' => 2]);
                 Room::where('room_id', $args['roomId'])->update(['room_status' => 0]);
 
                 return $response
