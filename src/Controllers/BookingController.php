@@ -64,7 +64,8 @@ class BookingController extends Controller
     public function getById($request, $response, $args)
     {
         $booking = Booking::where('book_id', $args['id'])
-                            ->with('an','an.patient','an.ward','room','user')
+                            ->with('ip','ip.patient','ip.ward','room','user')
+                            ->with('ip.pttype','ip.admdoctor','ip.patient.address')
                             ->first();
 
         return $response
