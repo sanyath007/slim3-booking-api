@@ -10,7 +10,7 @@ $app->post('/login', 'LoginController:login')->setName('login');
 
 $app->get('/dashboard/bookings', 'DashboardController:overallBookings');
 $app->get('/dashboard/rooms', 'DashboardController:overallRooms');
-// $app->get('/dashboard/{month}/rooms', 'DashboardController:overallRooms');
+$app->get('/dashboard/{month}/bookings-by-roomtype', 'DashboardController:bookingsByRoomtype');
 
 $app->get('/rooms', 'RoomController:getAll');
 $app->get('/rooms/{id}', 'RoomController:getById');

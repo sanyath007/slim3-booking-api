@@ -30,20 +30,20 @@ class DashboardController extends Controller
         return $res->withJson(collect(DB::select($sql))->first());
     }
     
-    public function bookings($req, $res, $args)
+    public function bookingsByRoomtype($req, $res, $args)
     {
         $sdate = $args['month']. '-01';
         $edate = $args['month']. '-31';
 
-        $sql="SELECT CAST(DAY(vstdate) AS SIGNED) AS d,
-            COUNT(DISTINCT vn) as num_pt
-            FROM ovst
-            WHERE (vstdate BETWEEN ? AND ?)
-            GROUP BY CAST(DAY(vstdate) AS SIGNED) 
-            ORDER BY CAST(DAY(vstdate) AS SIGNED) ";
+        $sql="SELECT
+                COUNT(r.room_id) as total,
+                COUNT(case when (r.room_type='1') then r.room_id end) as std,
+                COUNT(case when (r.room_type='2') then r.room_id end) as vip,
+                COUNT(case when (r.room_type='3') then r.room_id end) as vvip
+                FROM booking_rooms br 
+                left join rooms r on (br.room_id=r.room_id)
+                WHERE (br.checkin_date BETWEEN ? AND ?) ";
 
-        return $res->withJson(
-            DB::select($sql, [$sdate, $edate])
-        );
+        return $res->withJson(collect(DB::select($sql, [$sdate, $edate]))->first());
     }
 }
