@@ -47,6 +47,7 @@ $app->get('/bookings', 'BookingController:getAll');
 $app->get('/bookings/{id}', 'BookingController:getById');
 $app->get('/bookings/an/{an}', 'BookingController:getByAn');
 $app->get('/bookings/last/order-no', 'BookingController:generateOrderNo');
+$app->get('/bookings/{id}/{an}/histories', 'BookingController:histories');
 $app->post('/bookings', 'BookingController:store');
 $app->put('/bookings/{id}', 'BookingController:update');
 $app->put('/bookings/{id}/cancel', 'BookingController:cancel');

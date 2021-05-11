@@ -83,6 +83,23 @@ class BookingController extends Controller
                 ->withHeader("Content-Type", "application/json")
                 ->write(json_encode($booking, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
     }
+    
+    public function histories($request, $response, $args)
+    {
+        $page = (int)$request->getQueryParam('page');
+
+        $model = Booking::where('an', $args['an'])
+                    ->where('book_id', '<>', $args['id'])
+                    ->with('ip','ip.patient','ip.ward','room','user')
+                    ->with('ip.pttype','ip.admdoctor','ip.patient.address');
+
+        $bookings = paginate($model, 10, $page, $request);
+
+        return $response
+                ->withStatus(200)
+                ->withHeader("Content-Type", "application/json")
+                ->write(json_encode($bookings, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
+    }
 
     public function store($request, $response, $args)
     {
