@@ -21,7 +21,7 @@ class Room extends Model
     
     public function building()
     {
-        return $this->belongsTo(Building::class, 'building_id', 'building_id');
+        return $this->belongsTo(Building::class, 'building', 'building_id');
     }
     
     public function bookingRoom()
