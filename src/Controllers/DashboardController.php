@@ -46,4 +46,32 @@ class DashboardController extends Controller
 
         return $res->withJson(collect(DB::select($sql, [$sdate, $edate]))->first());
     }
+
+    public function bedOccYear($req, $res, $args)
+    {
+        $sdate = ($args['year'] - 1). '-10-01';
+        $edate = $args['year']. '-09-30';
+
+        $sql="SELECT 
+            CONCAT(YEAR(ip.dchdate), '-', MONTH(ip.dchdate)) AS ym,
+            SUM(ip.rw) AS rw, 
+            COUNT(ip.an) AS dc_num, 
+            SUM(a.admdate) as admdate 
+            FROM ipt ip
+            LEFT JOIN ward w ON (ip.ward=w.ward)
+            LEFT JOIN an_stat a ON (ip.an=a.an)				
+            WHERE (ip.dchdate BETWEEN ? AND ?)
+            AND (ip.ward IN ('06','11','12'))
+            AND (ip.an NOT IN (SELECT an from ipt_newborn))
+            GROUP BY CONCAT(YEAR(ip.dchdate), '-', MONTH(ip.dchdate)) ";
+                    
+        $q = "SELECT * FROM ipt_ward_stat 
+            WHERE (an IN (SELECT an FROM ipt WHERE dchdate BETWEEN ? AND ?))
+            AND (ward IN ('06','11','12')) ";
+
+        return $res->withJson([
+            'admdate' => DB::connection('hos')->select($sql, [$sdate, $edate]),
+            'wardStat' => DB::connection('hos')->select($q, [$sdate, $edate]),
+        ]);
+    }
 }
