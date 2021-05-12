@@ -59,6 +59,8 @@ $app->post('/bookings/checkin', 'BookingController:checkin');
 $app->put('/bookings/{id}/{roomId}/checkout', 'BookingController:checkout');
 $app->put('/bookings/{id}/{roomId}/cancel-checkin', 'BookingController:cancelCheckin');
 
+$app->get('/queues', 'QueueController:getAll');
+
 /** Routes to person db */
 $app->get('/depts', 'DeptController:getAll');
 $app->get('/depts/{id}', 'DeptController:getById');

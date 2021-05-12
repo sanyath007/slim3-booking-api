@@ -90,8 +90,8 @@ $container['DashboardController'] = function($c) {
     return new App\Controllers\DashboardController($c);
 };
 
-$container['OrderController'] = function($c) {
-    return new App\Controllers\OrderController($c);
+$container['QueueController'] = function($c) {
+    return new App\Controllers\QueueController($c);
 };
 
 $container['RoomController'] = function($c) {
