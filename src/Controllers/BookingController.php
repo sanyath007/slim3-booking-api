@@ -51,7 +51,7 @@ class BookingController extends Controller
                         $q->whereIn('an', $ip);
                     })
                     ->where('book_status', '=', 0)
-                    ->orderBy('book_id');
+                    ->orderBy('book_date', 'DESC');
 
         $bookings = paginate($model, 10, $page, $request);
 
