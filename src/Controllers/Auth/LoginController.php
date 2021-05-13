@@ -26,7 +26,8 @@ class LoginController extends Controller
                 "sub"   => [
                     'username'  => $user->loginname,
                     'name'      => $user->name,
-                    'position'  => $user->entryposition
+                    'position'  => $user->entryposition,
+                    'role'      => $user->permission->role
                 ]
             ];
 

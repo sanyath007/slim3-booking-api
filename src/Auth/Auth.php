@@ -10,7 +10,8 @@ class Auth
 
     public function attempt($username, $password)
     {
-        $user = User::where('loginname', $username)
+        $user = User::with('permission')
+                    ->where('loginname', $username)
                     ->get(['loginname', 'name', 'password', 'passweb', 'entryposition'])
                     ->first();
 
