@@ -192,13 +192,39 @@ class RoomController extends Controller
                         ->write(json_encode([
                             'status' => 1,
                             'message' => 'Update successfully!!',
-                            'item' => $room
+                            'room' => $room
                         ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
             }
         } catch (\Throwable $th) {
             /** Delete new room if error occurs */
             // Room::find($newRoomId)->delete();
             
+            /** And set data to client with http status 500 */
+            return $response->withStatus(500)
+                    ->withHeader("Content-Type", "application/json")
+                    ->write(json_encode([
+                        'status' => 0,
+                        'message' => 'Something went wrong!!'
+                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
+        } // end trycatch
+    }
+    
+    public function updateStatus($request, $response, $args)
+    {
+        try {
+            $room = Room::where('room_id', $args['id'])->first();
+            $room->room_status = $args['status'];
+
+            if($room->save()) {
+                return $response->withStatus(200)
+                        ->withHeader("Content-Type", "application/json")
+                        ->write(json_encode([
+                            'status' => 1,
+                            'message' => 'Update successfully!!',
+                            'room' => $room
+                        ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
+            }
+        } catch (\Throwable $th) {
             /** And set data to client with http status 500 */
             return $response->withStatus(500)
                     ->withHeader("Content-Type", "application/json")
