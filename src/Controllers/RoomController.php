@@ -131,7 +131,7 @@ class RoomController extends Controller
                         ->write(json_encode([
                             'status' => 1,
                             'message' => 'Insertion successfully!!',
-                            'item' => $room
+                            'room' => $room
                         ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
             } // end if
         } catch (\Throwable $th) {
@@ -192,7 +192,9 @@ class RoomController extends Controller
                         ->write(json_encode([
                             'status' => 1,
                             'message' => 'Update successfully!!',
-                            'room' => $room
+                            'room' => Room::with('roomType', 'roomGroup', 'building')
+                                        ->where('room_id', $args['id'])
+                                        ->first()
                         ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
             }
         } catch (\Throwable $th) {
@@ -212,16 +214,15 @@ class RoomController extends Controller
     public function updateStatus($request, $response, $args)
     {
         try {
-            $room = Room::where('room_id', $args['id'])->first();
-            $room->room_status = $args['status'];
-
-            if($room->save()) {
+            if(Room::where('room_id', $args['id'])->update(['room_status' => $args['status']])) {
                 return $response->withStatus(200)
                         ->withHeader("Content-Type", "application/json")
                         ->write(json_encode([
                             'status' => 1,
                             'message' => 'Update successfully!!',
-                            'room' => $room
+                            'room' => Room::with('roomType', 'roomGroup', 'building')
+                                        ->where('room_id', $args['id'])
+                                        ->first()
                         ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
             }
         } catch (\Throwable $th) {
