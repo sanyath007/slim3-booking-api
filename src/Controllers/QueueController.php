@@ -11,44 +11,30 @@ use App\Models\Ip;
 
 class QueueController extends Controller
 {
-    public function generateOrderNo($request, $response, $args)
-    {
-        $bookings = Booking::orderBy('book_id', 'DESC')->first();
-
-        $startId = substr((date('Y') + 543), 2);
-        $tmpLastId =  ((int)(substr($bookings->book_id, 4))) + 1;
-        $lastId = $startId.sprintf("%'.05d", $tmpLastId);
-
-        return $response
-                ->withStatus(200)
-                ->withHeader("Content-Type", "application/json")
-                ->write(json_encode($lastId, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
-    }
-
     public function getAll($request, $response, $args)
     {
         $page = (int)$request->getQueryParam('page');
-        $searchStr = $request->getQueryParam('search');
+        $depart = $request->getQueryParam('depart');
 
-        // TODO: separate search section to another method
-        /** ======== Search by patient data section ======== */
-        $ip = [];
-        if(!empty($searchStr)) {
-            $conditions = [];
-            $searches = explode(':', $searchStr);
-            if(count($searches) > 0) {
-                array_push($conditions, [$searches[0], 'like', '%'.$searches[1].'%']);
-            }
-
-            $ip = Ip::join('patient', 'ipt.hn', '=','patient.hn')
-                    ->where($conditions)
+        /** ======== พระภิกษุสงฆ์ Filtered ======== */
+        $ip = Ip::join('patient', 'ipt.hn', '=','patient.hn')
+                    ->where('patient.pname', 'like', 'พระ%')
                     ->pluck('ipt.an');
-        }
-        /** ======== Search by patient data section ======== */
+        /** ======== พระภิกษุสงฆ์ Filtered ======== */
 
         $model = Booking::with('ip','ip.ward','ip.patient','room','user')
-                    ->when(!empty($searchStr) ,function($q) use ($ip) {
-                        $q->whereIn('an', $ip);
+                    ->when(!empty($depart), function($q) use ($depart, $ip) {
+                        if($depart === '1') { //อายุรกรรม
+                            $q->whereIn('ward', ['01', '02']);
+                        } else if($depart === '2') { //พระภิกษุสงฆ์
+                            $q->whereIn('an', $ip);
+                        } else if($depart === '3') { //ศัลย์กรรมและออร์โธปิดิกส์
+                            $q->whereIn('ward', ['07', '10']);
+                        } else if($depart === '4') { //สูติ-นรีเวชกรรม และ กุมารเวชกรรม
+                            $q->whereIn('ward', ['08', '09']);
+                        } else if($depart === '5') { //โสต ศอ นาสิก
+                            $q->whereIn('ward', ['00']);
+                        }
                     })
                     ->where('book_status', '=', 0)
                     ->orderBy('book_date');
@@ -72,33 +58,6 @@ class QueueController extends Controller
                 ->withStatus(200)
                 ->withHeader("Content-Type", "application/json")
                 ->write(json_encode($booking, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
-    }
-    
-    public function getByAn($request, $response, $args)
-    {
-        $booking = Booking::where('an', $args['an'])->first();
-
-        return $response
-                ->withStatus(200)
-                ->withHeader("Content-Type", "application/json")
-                ->write(json_encode($booking, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
-    }
-    
-    public function histories($request, $response, $args)
-    {
-        $page = (int)$request->getQueryParam('page');
-
-        $model = Booking::where('an', $args['an'])
-                    ->where('book_id', '<>', $args['id'])
-                    ->with('ip','ip.patient','ip.ward','room','user')
-                    ->with('ip.pttype','ip.admdoctor','ip.patient.address');
-
-        $bookings = paginate($model, 10, $page, $request);
-
-        return $response
-                ->withStatus(200)
-                ->withHeader("Content-Type", "application/json")
-                ->write(json_encode($bookings, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
     }
 
     public function store($request, $response, $args)
@@ -228,38 +187,6 @@ class QueueController extends Controller
         }
     }
 
-    public function discharge($request, $response, $args)
-    {
-        try {
-            if(Booking::where('book_id', $args['id'])->update(['book_status' => '3'])) {
-                return $response
-                        ->withStatus(200)
-                        ->withHeader("Content-Type", "application/json")
-                        ->write(json_encode([
-                            'status' => 1,
-                            'message' => 'Discharging successfully',
-                            'booking' => Booking::where('book_id', $args['id'])->first(),
-                        ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
-            } else {
-                return $response
-                    ->withStatus(500)
-                    ->withHeader("Content-Type", "application/json")
-                    ->write(json_encode([
-                        'status' => 0,
-                        'message' => 'Something went wrong!!'
-                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
-            }
-        } catch (\Exception $ex) {
-            return $response
-                    ->withStatus(500)
-                    ->withHeader("Content-Type", "application/json")
-                    ->write(json_encode([
-                        'status' => 0,
-                        'message' => $ex->getMessage()
-                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
-        }
-    }
-
     public function delete($request, $response, $args)
     {
         try {
@@ -305,94 +232,6 @@ class QueueController extends Controller
                     ->write(json_encode([
                         'status' => 1,
                         'message' => 'Cancelation checkin successfully'
-                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
-            } else {
-                return $response
-                    ->withStatus(500)
-                    ->withHeader("Content-Type", "application/json")
-                    ->write(json_encode([
-                        'status' => 0,
-                        'message' => 'Something went wrong!!'
-                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
-            }
-        } catch (\Exception $ex) {
-            return $response
-                    ->withStatus(500)
-                    ->withHeader("Content-Type", "application/json")
-                    ->write(json_encode([
-                        'status' => 0,
-                        'message' => $ex->getMessage()
-                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
-        }
-    }
-
-    public function checkin($request, $response, $args)
-    {
-        try {
-            $post = (array)$request->getParsedBody();
-            
-            $br = new BookingRoom();
-            $br->book_id = $post['bookId'];
-            $br->room_id = $post['roomId'];
-            $br->checkin_date = $post['checkinDate'];
-            $br->checkin_time = $post['checkinTime'];
-            $br->have_observer = $post['haveObserver'];
-            $br->observer_name = $post['observerName'];
-            $br->observer_name = $post['observerTel'];
-
-            if ($br->save()) {
-                Booking::where('book_id', $post['bookId'])->update(['book_status' => 1]);
-                Room::where('room_id', $post['roomId'])->update(['room_status' => 1]);
-
-                return $response
-                    ->withStatus(200)
-                    ->withHeader("Content-Type", "application/json")
-                    ->write(json_encode([
-                        'status' => 1,
-                        'message' => 'Checking in successfully',
-                        'data' => $br,
-                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
-            } else {
-                return $response
-                    ->withStatus(500)
-                    ->withHeader("Content-Type", "application/json")
-                    ->write(json_encode([
-                        'status' => 0,
-                        'message' => 'Something went wrong!!'
-                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
-            }
-        } catch (\Exception $ex) {
-            return $response
-                    ->withStatus(500)
-                    ->withHeader("Content-Type", "application/json")
-                    ->write(json_encode([
-                        'status' => 0,
-                        'message' => $ex->getMessage()
-                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
-        }
-    }
-
-    public function checkout($request, $response, $args)
-    {
-        try {            
-            $br = BookingRoom::where('book_id', $args['id'])
-                    ->where('room_id', $args['roomId'])
-                    ->update([
-                        'checkout_date' => date('Y-m-d'),
-                        'checkout_time' => date('H:i:s')
-                    ]);
-
-            if ($br) {
-                Booking::where('book_id', $args['id'])->update(['book_status' => 2]);
-                Room::where('room_id', $args['roomId'])->update(['room_status' => 0]);
-
-                return $response
-                    ->withStatus(200)
-                    ->withHeader("Content-Type", "application/json")
-                    ->write(json_encode([
-                        'status' => 1,
-                        'message' => 'Checking out successfully',
-                        'data' => $br,
                     ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
             } else {
                 return $response
