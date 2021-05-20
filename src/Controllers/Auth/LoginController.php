@@ -27,7 +27,7 @@ class LoginController extends Controller
                     'username'  => $user->loginname,
                     'name'      => $user->name,
                     'position'  => $user->entryposition,
-                    'role'      => $user->permission->role
+                    'role'      => $user->permission ? $user->permission->role : 3
                 ]
             ];
 

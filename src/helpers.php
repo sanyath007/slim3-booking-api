@@ -42,11 +42,16 @@ function getUrlWithQueryStr($request)
         $qs = '?';
     } else {
         // if found "page=" phrase have to slice out or if not found append querystring with '&'
-        $qs = strrpos($request->getServerParam('QUERY_STRING'), 'page=')
-                ? '?'.substr(
-                    $request->getServerParam('QUERY_STRING'), 0,
-                    strrpos($request->getServerParam('QUERY_STRING'), 'page='))
-                : '?'.$request->getServerParam('QUERY_STRING').'&';
+        if(strrpos($request->getServerParam('QUERY_STRING'), 'page=') === false) {
+            $qs = '?'.$request->getServerParam('QUERY_STRING').'&';
+        } else {
+            if(strrpos($request->getServerParam('QUERY_STRING'), 'page=') > 0) {
+                $qs = '?'.substr($request->getServerParam('QUERY_STRING'), 0, 
+                        strrpos($request->getServerParam('QUERY_STRING'), 'page='));
+            } else {
+                $qs = '?';
+            }
+        }
     }
 
     return 'http://'.$request->getServerParam('HTTP_HOST'). $request->getServerParam('REDIRECT_URL').$qs;
