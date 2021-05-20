@@ -88,7 +88,7 @@ class BookingController extends Controller
     {
         $page = (int)$request->getQueryParam('page');
 
-        $model = Booking::where('an', $args['an'])
+        $model = Booking::where('hn', $args['hn'])
                     ->where('book_id', '<>', $args['id'])
                     ->with('ip','ip.patient','ip.ward','room','user')
                     ->with('ip.pttype','ip.admdoctor','ip.patient.address');
