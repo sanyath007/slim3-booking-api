@@ -25,16 +25,16 @@ class QueueController extends Controller
         $model = Booking::with('ip','ip.ward','ip.patient','room','user')
                     ->when(!empty($depart), function($q) use ($depart, $ip) {
                         if($depart === '1') { //อายุรกรรม
-                            $q->whereIn('ward', ['01', '02'])->where('is_officer', '<>', '1');
+                            $q->whereIn('ward', ['01','02','18'])->where('is_officer', '<>', '1');
                         } else if($depart === '2') { //ศัลย์กรรมและออร์โธปิดิกส์
-                            $q->whereIn('ward', ['07', '10'])->where('is_officer', '<>', '1');
+                            $q->whereIn('ward', ['07','10','19'])->where('is_officer', '<>', '1');
                         } else if($depart === '3') { //สูติ-นรีเวชกรรม และ กุมารเวชกรรม
-                            $q->whereIn('ward', ['08', '09'])->where('is_officer', '<>', '1');
+                            $q->whereIn('ward', ['04','08','09'])->where('is_officer', '<>', '1');
                         } else if($depart === '4') { //โสต ศอ นาสิก
                             $q->whereIn('ward', ['00'])->where('is_officer', '<>', '1');
                         } else if($depart === '5') { //พระภิกษุสงฆ์
                             $q->whereIn('an', $ip)->where('is_officer', '<>', '1');
-                        } else if($depart === '6') { //โสต ศอ นาสิก
+                        } else if($depart === '6') { //บุคลากร รพ.
                             $q->where('is_officer', '1');
                         }
                     })
