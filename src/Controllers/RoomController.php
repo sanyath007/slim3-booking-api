@@ -167,6 +167,7 @@ class RoomController extends Controller
 
             /** Upload image */
             $img_url = $this->uploadImage($post['room_img_url'], $upload_url);
+
             /** If room_img_url in db is empty and user upload file do this */
             if(empty($room->room_img_url) && !empty($img_url)) {
                 $room->room_img_url = $img_url;
@@ -238,7 +239,7 @@ class RoomController extends Controller
 
     public function delete($request, $response, $args)
     {
-        $room = Room::where('id', $args['id'])->first();
+        $room = Room::where('room_id', $args['id'])->first();
         
         if($room->delete()) {
             return $response->withStatus(200)
