@@ -17,7 +17,7 @@ class DashboardController extends Controller
 
         return $res->withJson(collect(DB::select($sql))->first());
     }
-    
+
     public function overallRooms($req, $res, $args)
     {
         $sql="SELECT
@@ -29,7 +29,17 @@ class DashboardController extends Controller
 
         return $res->withJson(collect(DB::select($sql))->first());
     }
-    
+
+    public function overallIncome($req, $res, $args)
+    {
+        $sql="SELECT sum(sum_price) as sum_income 
+                FROM opitemrece
+                WHERE (icode in (select icode from nondrugitems where (income='01') and (name like '%พิเศษ%')))
+                AND (vstdate between '2021-12-01' and '2021-12-31')";
+
+        return $res->withJson(collect(DB::connection('hos')->select($sql))->first());
+    }
+
     public function bookingsByRoomtype($req, $res, $args)
     {
         $sdate = $args['month']. '-01';
