@@ -18,12 +18,17 @@ class Booking extends Model
     {
         return $this->belongsTo(Ward::class, 'ward', 'ward');
     }
-    
+
     public function ip()
     {
         return $this->hasOne(Ip::class, 'an', 'an');
     }
-    
+
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class, 'hn', 'hn');
+    }
+
     public function user()
     {
         return $this->belongsTo(Staff::class, 'user', 'person_id');

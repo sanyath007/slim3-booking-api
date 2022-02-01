@@ -46,7 +46,7 @@ class BookingController extends Controller
         }
         /** ======== Search by patient data section ======== */
 
-        $model = Booking::with('ip','ip.ward','ip.patient','room','user')
+        $model = Booking::with('patient','patient.admit','patient.admit.ward','room','user')
                     ->when(!empty($searchStr) ,function($q) use ($ip) {
                         $q->whereIn('an', $ip);
                     })

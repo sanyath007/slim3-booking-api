@@ -11,6 +11,16 @@ class Patient extends Model
     protected $connection = "hos";
     protected $table = "patient";
 
+    public function ips()
+    {
+        return $this->hasMany(Ip::class, 'hn', 'hn');
+    }
+
+    public function admit()
+    {
+        return $this->hasOne(Ip::class, 'hn', 'hn')->whereNull('dchdate');
+    }
+
     public function address()
     {
         return $this->hasOne(
