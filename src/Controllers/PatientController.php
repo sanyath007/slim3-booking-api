@@ -10,9 +10,26 @@ class PatientController extends Controller
 {
     public function getAll($request, $response, $args)
     {
+        $conditions = [];
         $page = (int)$request->getQueryParam('page');
+        $searchStr = $request->getQueryParam('search');
 
-        $model = Patient::where('death', '<>', 'Y')->orderBy('hn');
+        // TODO: separate search section to another method
+        /** ======== Search by patient data section ======== */
+        if(!empty($searchStr)) {
+            $searches = explode(':', $searchStr);
+            if(count($searches) > 0) {
+                $fdName = $searches[0] !== 'an' ? 'patient.'.$searches[0] : 'ipt.'.$searches[0];
+                array_push($conditions, [$fdName, 'like', '%'.$searches[1].'%']);
+            }
+        }
+        /** ======== Search by patient data section ======== */
+
+        $model = Patient::where('death', '<>', 'Y')
+                    ->when(count($conditions) > 0, function($q) use ($conditions) {
+                        $q->where($conditions);
+                    })
+                    ->orderBy('hn');
 
         $bookings = paginate($model, 10, $page, $request);
 
