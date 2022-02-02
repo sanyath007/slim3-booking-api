@@ -119,6 +119,7 @@ class BookingController extends Controller
             $booking->description   = $post['description'];
             $booking->remark        = $post['remark'];
             $booking->created_by    = $post['user'];
+            $booking->updated_by    = $post['user'];
             $booking->book_status   = 0;
 
             if($booking->save()) {
