@@ -22,7 +22,7 @@ class QueueController extends Controller
                     ->pluck('ipt.an');
         /** ======== พระภิกษุสงฆ์ Filtered ======== */
 
-        $model = Booking::with('ip','ip.ward','ip.patient','room','user')
+        $model = Booking::with('patient','patient.admit','patient.admit.ward','room','user')
                     ->when(!empty($depart), function($q) use ($depart, $ip) {
                         if($depart === '1') { //อายุรกรรม
                             $q->whereIn('ward', ['01','02','18'])->where('is_officer', '<>', '1');
