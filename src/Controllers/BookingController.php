@@ -107,18 +107,19 @@ class BookingController extends Controller
             $post = (array)$request->getParsedBody();
 
             $booking = new Booking;
-            $booking->an = $post['an'];
-            $booking->hn = $post['hn'];
-            $booking->book_date = $post['book_date'];
-            $booking->book_name = $post['book_name'];
-            $booking->book_tel = $post['book_tel'];
-            $booking->description = $post['description'];
-            $booking->remark = $post['remark'];
-            $booking->room_types = $post['room_types'];
-            $booking->is_officer = $post['is_officer'];
-            $booking->user = $post['user'];
-            $booking->ward = $post['ward'];
-            $booking->book_status = 0;
+            $booking->an            = $post['an'];
+            $booking->hn            = $post['hn'];
+            $booking->book_date     = $post['book_date'];
+            $booking->book_name     = $post['book_name'];
+            $booking->book_tel      = $post['book_tel'];
+            $booking->ward          = $post['ward'];
+            $booking->specialist    = $post['specialist'];
+            $booking->room_types    = $post['room_types'];
+            $booking->is_officer    = $post['is_officer'];
+            $booking->description   = $post['description'];
+            $booking->remark        = $post['remark'];
+            $booking->created_by    = $post['user'];
+            $booking->book_status   = 0;
 
             if($booking->save()) {
                 return $response
@@ -155,26 +156,27 @@ class BookingController extends Controller
             $post = (array)$request->getParsedBody();
 
             $booking = Booking::find($args['id']);
-            // $booking->an = $post['an']; // ไม่ให้แก้ไขผู้ป่วย
-            $booking->book_date = $post['book_date'];
-            $booking->book_name = $post['book_name'];
-            $booking->book_tel = $post['book_tel'];
-            $booking->description = $post['description'];
-            $booking->remark = $post['remark'];
-            $booking->room_types = $post['room_types'];
-            $booking->is_officer = $post['is_officer'];
-            $booking->user = $post['user'];
-            $booking->ward = $post['ward'];
-            $booking->book_status = 0;
+            // $booking->an            = $post['an']; // ไม่ให้แก้ไขผู้ป่วย
+            $booking->book_date     = $post['book_date'];
+            $booking->book_name     = $post['book_name'];
+            $booking->book_tel      = $post['book_tel'];
+            $booking->ward          = $post['ward'];
+            $booking->specialist    = $post['specialist'];
+            $booking->room_types    = $post['room_types'];
+            $booking->is_officer    = $post['is_officer'];
+            $booking->description   = $post['description'];
+            $booking->remark        = $post['remark'];
+            $booking->updated_by    = $post['user'];
+            $booking->book_status   = 0;
 
             if($booking->save()) {
                 return $response
                         ->withStatus(200)
                         ->withHeader("Content-Type", "application/json")
                         ->write(json_encode([
-                            'status' => 1,
-                            'message' => 'Updating successfully',
-                            'booking' => $booking
+                            'status'    => 1,
+                            'message'   => 'Updating successfully',
+                            'booking'   => $booking
                         ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
             } else {
                 return $response
