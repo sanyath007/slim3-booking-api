@@ -335,16 +335,21 @@ class BookingController extends Controller
             $post = (array)$request->getParsedBody();
             
             $br = new BookingRoom();
-            $br->book_id = $post['bookId'];
-            $br->room_id = $post['roomId'];
-            $br->checkin_date = $post['checkinDate'];
-            $br->checkin_time = $post['checkinTime'];
-            $br->have_observer = $post['haveObserver'];
-            $br->observer_name = $post['observerName'];
-            $br->observer_name = $post['observerTel'];
+            $br->book_id        = $post['bookId'];
+            $br->room_id        = $post['roomId'];
+            $br->checkin_date   = $post['checkinDate'];
+            $br->checkin_time   = $post['checkinTime'];
+            $br->have_observer  = $post['haveObserver'];
+            $br->observer_name  = $post['observerName'];
+            $br->observer_name  = $post['observerTel'];
+            $br->created_by     = $post['user'];
+            $br->updated_by     = $post['user'];
 
             if ($br->save()) {
-                Booking::where('book_id', $post['bookId'])->update(['book_status' => 1]);
+                Booking::where('book_id', $post['bookId'])->update([
+                    'book_status'   => 1,
+                    'updated_by'    => $post['user']
+                ]);
                 Room::where('room_id', $post['roomId'])->update(['room_status' => 1]);
 
                 return $response
