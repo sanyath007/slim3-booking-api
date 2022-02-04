@@ -26,6 +26,7 @@ class PatientController extends Controller
         /** ======== Search by patient data section ======== */
 
         $model = Patient::where('death', '<>', 'Y')
+                    ->where('hn', '<>', '0000000')
                     ->when(count($conditions) > 0, function($q) use ($conditions) {
                         $q->where($conditions);
                     })
