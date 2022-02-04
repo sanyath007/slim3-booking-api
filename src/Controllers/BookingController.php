@@ -7,6 +7,7 @@ use Illuminate\Database\Capsule\Manager as DB;
 use App\Models\Booking;
 use App\Models\BookingRoom;
 use App\Models\Room;
+use App\Models\Patient;
 use App\Models\Ip;
 
 class BookingController extends Controller
@@ -30,35 +31,51 @@ class BookingController extends Controller
         $page = (int)$request->getQueryParam('page');
         $searchStr = $request->getQueryParam('search');
 
-        // TODO: separate search section to another method
-        /** ======== Search by patient data section ======== */
-        $ip = [];
-        if(!empty($searchStr)) {
-            $conditions = [];
-            $searches = explode(':', $searchStr);
-            if(count($searches) > 0) {
-                array_push($conditions, [$searches[0], 'like', '%'.$searches[1].'%']);
+        try {
+            // TODO: separate search section to another method
+            /** ======== Search by patient data section ======== */
+            $patientList = [];
+            if(!empty($searchStr)) {
+                $conditions = [];
+                $searches = explode(':', $searchStr);
+                if(count($searches) > 0) {
+                    if ($searches[0] == 'fname') {
+                        array_push($conditions, ['patient.'.$searches[0], 'like', '%'.$searches[1].'%']);
+                    } else if ($searches[0] == 'an') {
+                        array_push($conditions, ['ipt.'.$searches[0], '=', $searches[1]]);
+                    } else {
+                        array_push($conditions, ['patient.'.$searches[0], '=', $searches[1]]);
+                    }
+                }
+
+                $patientList = Patient::leftJoin('ipt', 'ipt.hn', '=','patient.hn')
+                                ->where($conditions)
+                                ->pluck('patient.hn');
             }
+            /** ======== Search by patient data section ======== */
 
-            $ip = Ip::join('patient', 'ipt.hn', '=','patient.hn')
-                    ->where($conditions)
-                    ->pluck('ipt.an');
+            $model = Booking::with('patient','patient.admit','patient.admit.ward','room','user')
+                        ->when(!empty($searchStr) ,function($q) use ($patientList) {
+                            $q->whereIn('hn', $patientList)->select();
+                        })
+                        ->where('book_status', '=', 0)
+                        ->orderBy('book_date', 'DESC');
+
+            $bookings = paginate($model, 10, $page, $request);
+
+            return $response
+                    ->withStatus(200)
+                    ->withHeader("Content-Type", "application/json")
+                    ->write(json_encode($bookings, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
+        } catch (\Exception $ex) {
+            return $response
+                    ->withStatus(500)
+                    ->withHeader("Content-Type", "application/json")
+                    ->write(json_encode([
+                        'status' => 0,
+                        'message' => $ex->getMessage()
+                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
         }
-        /** ======== Search by patient data section ======== */
-
-        $model = Booking::with('patient','patient.admit','patient.admit.ward','room','user')
-                    ->when(!empty($searchStr) ,function($q) use ($ip) {
-                        $q->whereIn('an', $ip);
-                    })
-                    ->where('book_status', '=', 0)
-                    ->orderBy('book_date', 'DESC');
-
-        $bookings = paginate($model, 10, $page, $request);
-
-        return $response
-                ->withStatus(200)
-                ->withHeader("Content-Type", "application/json")
-                ->write(json_encode($bookings, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
     }
     
     public function getById($request, $response, $args)
