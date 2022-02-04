@@ -7,7 +7,7 @@ $container = $app->getContainer();
 $container['errorHandler'] = function ($c) {
     return function ($request, $response, $exception) use ($c) {
         return $response
-                ->withStatus(500)
+                ->withStatus($response->getStatus())
                 ->withHeader("Content-Type", "application/json")
                 ->write($exception->getMessage());
     };
