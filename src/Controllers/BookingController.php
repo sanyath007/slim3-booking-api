@@ -232,7 +232,12 @@ class BookingController extends Controller
     public function cancel($request, $response, $args)
     {
         try {
-            if(Booking::where('book_id', $args['id'])->update(['book_status' => '9'])) {
+            $post = (array)$request->getParsedBody();
+
+            if(Booking::where('book_id', $args['id'])->update([
+                'book_status'   => 9,
+                'updated_by'    => $post['user']
+            ])) {
                 return $response
                         ->withStatus(200)
                         ->withHeader("Content-Type", "application/json")
@@ -264,7 +269,12 @@ class BookingController extends Controller
     public function discharge($request, $response, $args)
     {
         try {
-            if(Booking::where('book_id', $args['id'])->update(['book_status' => '3'])) {
+            $post = (array)$request->getParsedBody();
+
+            if(Booking::where('book_id', $args['id'])->update([
+                'book_status'   => 3,
+                'updated_by'    => $post['user']
+            ])) {
                 return $response
                         ->withStatus(200)
                         ->withHeader("Content-Type", "application/json")
@@ -342,8 +352,13 @@ class BookingController extends Controller
     public function cancelCheckin($request, $response, $args)
     {
         try {
+            $post = (array)$request->getParsedBody();
+
             if(BookingRoom::where(['book_id' => $args['id'], 'room_id' => $args['roomId']])->delete()) {
-                Booking::where('book_id', $args['id'])->update(['book_status' => 0]);
+                Booking::where('book_id', $args['id'])->update([
+                    'book_status'   => 0,
+                    'updated_by'    => $post['user']
+                ]);
                 Room::where('room_id', $args['roomId'])->update(['room_status' => 0]);
 
                 return $response
@@ -426,16 +441,22 @@ class BookingController extends Controller
 
     public function checkout($request, $response, $args)
     {
-        try {            
+        try {
+            $post = (array)$request->getParsedBody();
+
             $br = BookingRoom::where('book_id', $args['id'])
                     ->where('room_id', $args['roomId'])
                     ->update([
                         'checkout_date' => date('Y-m-d'),
-                        'checkout_time' => date('H:i:s')
+                        'checkout_time' => date('H:i:s'),
+                        'updated_by'    => $post['user']
                     ]);
 
             if ($br) {
-                Booking::where('book_id', $args['id'])->update(['book_status' => 2]);
+                Booking::where('book_id', $args['id'])->update([
+                    'book_status'   => 2,
+                    'updated_by'    => $post['user']
+                ]);
                 Room::where('room_id', $args['roomId'])->update(['room_status' => 0]);
 
                 return $response
