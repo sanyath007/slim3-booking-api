@@ -296,22 +296,36 @@ class BookingController extends Controller
     public function delete($request, $response, $args)
     {
         try {
-            if(Booking::where('book_id', $args['id'])->delete()) {
-                return $response
-                        ->withStatus(200)
-                        ->withHeader("Content-Type", "application/json")
-                        ->write(json_encode([
-                            'status' => 1,
-                            'message' => 'Deleting successfully',
-                            'booking' => $booking
-                        ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
-            } else {
-                return $response
+            /** ตรวจสอบว่าผู้ป่วยถูกรับเข้าห้องหรือยัง */
+            $isCheckedIn = BookingRoom::where('book_id', $args['id'])->count();
+
+            // TODO: ถ้าผู้ป่วยถูกรับเข้าห้องแล้วให้ response กลับพร้อม message แจ้ง
+            if ($isCheckedIn == 0) {
+                if(Booking::where('book_id', $args['id'])->delete()) {
+                    return $response
+                            ->withStatus(200)
+                            ->withHeader("Content-Type", "application/json")
+                            ->write(json_encode([
+                                'status' => 1,
+                                'message' => 'Deleting successfully',
+                                'booking' => $booking
+                            ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
+                } else {
+                    return $response
                     ->withStatus(500)
                     ->withHeader("Content-Type", "application/json")
                     ->write(json_encode([
                         'status' => 0,
                         'message' => 'Something went wrong!!'
+                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
+                }
+            } else {
+                return $response
+                    ->withStatus(409)
+                    ->withHeader("Content-Type", "application/json")
+                    ->write(json_encode([
+                        'status' => 0,
+                        'message' => 'It\'s have checked in!!'
                     ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
             }
         } catch (\Exception $ex) {
