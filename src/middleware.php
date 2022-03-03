@@ -118,6 +118,10 @@ $container['BookingController'] = function($c) {
     return new App\Controllers\BookingController($c);
 };
 
+$container['SpecialistController'] = function($c) {
+    return new App\Controllers\SpecialistController($c);
+};
+
 /** Person Controllers */
 $container['StaffController'] = function($c) {
     return new App\Controllers\StaffController($c);

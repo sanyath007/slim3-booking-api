@@ -63,6 +63,8 @@ $app->put('/bookings/{id}/{roomId}/cancel-checkin', 'BookingController:cancelChe
 
 $app->get('/queues', 'QueueController:getAll');
 
+$app->get('/specialists', 'SpecialistController:getAll');
+
 /** Routes to person db */
 $app->get('/depts', 'DeptController:getAll');
 $app->get('/depts/{id}', 'DeptController:getById');
