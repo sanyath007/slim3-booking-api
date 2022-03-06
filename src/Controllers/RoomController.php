@@ -14,11 +14,15 @@ class RoomController extends Controller
     {
         $page = (int)$request->getQueryParam('page');
 
+        $roomModel = Room::with('roomType', 'roomGroup', 'building')
+                        ->with('amenities', 'amenities.amenity')
+                        ->orderBy('room_no');
+
         if ($page) {
-            $data = paginate(Room::with('roomType', 'roomGroup', 'building')->orderBy('room_no'), 10, $page, $request);
+            $data = paginate($roomModel, 10, $page, $request);
         } else {
             $data = [
-                'items' => Room::with('roomType', 'roomGroup', 'building')->orderBy('room_no')->get()
+                'items' => $roomModel->get()
             ];
         }
 
