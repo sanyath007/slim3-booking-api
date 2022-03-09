@@ -18,9 +18,22 @@ class PatientController extends Controller
         /** ======== Search by patient data section ======== */
         if(!empty($searchStr)) {
             $searches = explode(':', $searchStr);
+
             if(count($searches) > 0) {
-                $fdName = $searches[0] !== 'an' ? 'patient.'.$searches[0] : 'ipt.'.$searches[0];
-                array_push($conditions, [$fdName, 'like', '%'.$searches[1].'%']);
+                if($searches[0] == 'an') {
+                    $fdName = 'ipt.'.$searches[0];
+
+                    array_push($conditions, [$fdName, '=', $searches[1]]);
+                } else if ($searches[0] == 'hn') {
+                    $fdName = 'patient.'.$searches[0];
+
+                    array_push($conditions, [$fdName, '=', $searches[1]]);
+                } else {
+                    list($fname, $lname) = explode(',', $searches[1]);
+
+                    array_push($conditions, ['patient.fname', 'like', $fname.'%']);
+                    array_push($conditions, ['patient.lname', 'like', $lname.'%']);
+                }
             }
         }
         /** ======== Search by patient data section ======== */
