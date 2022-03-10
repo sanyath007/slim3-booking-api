@@ -119,15 +119,17 @@ class RoomController extends Controller
             $room->room_status = 0;
 
             if($room->save()) {
-                $newRoomId = $room->room_id;
-                $amenities = explode(",", $post['amenities']);
-
-                foreach($amenities as $amenity) {
-                    $ra = new RoomAmenities();
-                    $ra->room_id = $newRoomId;
-                    $ra->amenity_id = $amenity;
-                    $ra->status = 1;
-                    $ra->save();
+                if(!empty($post['amenities'])) {
+                    $newRoomId = $room->room_id;
+                    $amenities = explode(",", $post['amenities']);
+    
+                    foreach($amenities as $amenity) {
+                        $ra = new RoomAmenities();
+                        $ra->room_id = $newRoomId;
+                        $ra->amenity_id = $amenity;
+                        $ra->status = 1;
+                        $ra->save();
+                    }
                 }
 
                 return $response->withStatus(200)
