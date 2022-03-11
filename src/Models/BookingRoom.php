@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class BookingRoom extends Model
 {
     protected $table = "booking_rooms";
+    protected $primaryKey = 'book_id';
     public $incrementing = false; //ไม่ใช้ options auto increment
     // public $timestamps = false; //ไม่ใช้ field updated_at และ created_at
 

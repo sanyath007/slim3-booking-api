@@ -60,6 +60,7 @@ $app->delete('/bookings/{id}', 'BookingController:delete');
 $app->post('/bookings/checkin', 'BookingController:checkin');
 $app->put('/bookings/{id}/{roomId}/checkout', 'BookingController:checkout');
 $app->put('/bookings/{id}/{roomId}/cancel-checkin', 'BookingController:cancelCheckin');
+$app->put('/bookings/{id}/change-room', 'BookingController:changRoom');
 
 $app->get('/queues', 'QueueController:getAll');
 

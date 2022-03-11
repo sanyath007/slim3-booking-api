@@ -486,4 +486,51 @@ class BookingController extends Controller
                     ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
         }
     }
+
+    public function changRoom($request, $response, $args)
+    {
+        try {
+            $post = (array)$request->getParsedBody();
+
+            $br = BookingRoom::where('book_id', $args['id'])->first();
+            /** Retrieve old room id  */
+            $oldRoom = $br->room_id;
+
+            $br->room_id    = $post['new_room'];
+            $br->updated_by = $post['user'];
+
+            if ($br->save()) {
+                /** Update status of old room */
+                Room::where('room_id', $oldRoom)->update(['room_status' => 0]);
+
+                /** Update status of new room */
+                Room::where('room_id', $post['new_room'])->update(['room_status' => 1]);
+
+                return $response
+                    ->withStatus(200)
+                    ->withHeader("Content-Type", "application/json")
+                    ->write(json_encode([
+                        'status' => 1,
+                        'message' => 'Changing room successfully',
+                        'data' => $br,
+                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
+            } else {
+                return $response
+                    ->withStatus(500)
+                    ->withHeader("Content-Type", "application/json")
+                    ->write(json_encode([
+                        'status' => 0,
+                        'message' => 'Something went wrong!!'
+                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
+            }
+        } catch (\Exception $ex) {
+            return $response
+                    ->withStatus(500)
+                    ->withHeader("Content-Type", "application/json")
+                    ->write(json_encode([
+                        'status' => 0,
+                        'message' => $ex->getMessage()
+                    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE));
+        }
+    }
 }
