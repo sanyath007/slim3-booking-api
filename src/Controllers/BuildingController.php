@@ -10,7 +10,11 @@ class BuildingController extends Controller
 {
     public function getAll($request, $response, $args)
     {
-        $buildings = Building::all();
+        $haveVip = $request->getParam('haveVip');
+
+        $buildings = Building::when(!empty($haveVip), function($q) use ($haveVip) {
+                            $q->where('have_vip', $haveVip);
+                        })->get();
 
         return $response->withStatus(200)
                 ->withHeader("Content-Type", "application/json")
