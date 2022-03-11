@@ -506,6 +506,8 @@ class BookingController extends Controller
                 /** Update status of new room */
                 Room::where('room_id', $post['new_room'])->update(['room_status' => 1]);
 
+                /** TODO: To store changing room data to specific table */
+
                 return $response
                     ->withStatus(200)
                     ->withHeader("Content-Type", "application/json")

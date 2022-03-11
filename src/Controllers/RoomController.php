@@ -248,7 +248,8 @@ class RoomController extends Controller
         $room = Room::where('room_id', $args['id'])->first();
         
         if($room->delete()) {
-            /** TODO: Should delete room_amenities that have room_id equal deleted room */
+            /** Should delete room_amenities that have room_id equal deleted room */
+            RoomAmenities::where('room_id', $args['id'])->delete();
 
             return $response->withStatus(200)
                     ->withHeader("Content-Type", "application/json")
