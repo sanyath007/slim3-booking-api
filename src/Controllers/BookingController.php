@@ -54,7 +54,8 @@ class BookingController extends Controller
             }
             /** ======== Search by patient data section ======== */
 
-            $model = Booking::with('patient','patient.admit','patient.admit.ward','room','user')
+            $model = Booking::with('patient','patient.admit','patient.admit.ward')
+                        ->with('baby','baby.patient','room','user')
                         ->when(!empty($searchStr) ,function($q) use ($patientList) {
                             $q->whereIn('hn', $patientList)->select();
                         })
@@ -81,8 +82,9 @@ class BookingController extends Controller
     public function getById($request, $response, $args)
     {
         $booking = Booking::where('book_id', $args['id'])
-                            ->with('patient','patient.admit','patient.admit.ward','room','user')
-                            ->with('patient.admit.pttype','patient.admit.admdoctor','patient.address')
+                            ->with('patient','patient.address','patient.admit')
+                            ->with('patient.admit.pttype','patient.admit.admdoctor','patient.admit.ward')
+                            ->with('baby','baby.patient','room','user')
                             ->first();
 
         return $response
