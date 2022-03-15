@@ -29,9 +29,9 @@ class Booking extends Model
         return $this->belongsTo(Patient::class, 'hn', 'hn');
     }
 
-    public function baby()
+    public function newborn()
     {
-        return $this->hasMany(Ip::class, 'an', 'baby');
+        return $this->hasMany(Ip::class, 'an', 'newborn');
     }
 
     public function user()
