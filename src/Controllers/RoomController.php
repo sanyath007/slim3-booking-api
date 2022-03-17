@@ -117,6 +117,7 @@ class RoomController extends Controller
             $room->building = $post['building'];
             $room->floor = $post['floor'];
             $room->price = $post['price'];
+            $room->remark = $post['remark'];
             $room->room_img_url = $img_url;
             $room->room_status = 0;
 
@@ -172,6 +173,7 @@ class RoomController extends Controller
             $room->building = $post['building'];
             $room->floor = $post['floor'];
             $room->price = $post['price'];
+            $room->remark = $post['remark'];
             // $room->room_status = 0;
 
             /** Upload image */
