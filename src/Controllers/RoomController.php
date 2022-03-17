@@ -61,6 +61,7 @@ class RoomController extends Controller
     public function getRoomsStatus($request, $response, $args)
     {
         $rooms = Room::whereNotIn('room_status', [2,3])
+                    ->with('roomType')
                     ->orderBy('room_no')
                     ->get();
         $usedRooms = Room::where(['room_status' => 1])
