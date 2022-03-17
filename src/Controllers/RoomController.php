@@ -33,7 +33,8 @@ class RoomController extends Controller
 
     public function getById($request, $response, $args)
     {
-        $room = Room::with('amenities', 'amenities.amenity')
+        $room = Room::with('roomType', 'roomGroup', 'building')
+                    ->with('amenities', 'amenities.amenity')
                     ->where('room_id', $args['id'])
                     ->first();
                     
