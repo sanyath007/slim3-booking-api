@@ -38,8 +38,11 @@ class PatientController extends Controller
         }
         /** ======== Search by patient data section ======== */
 
+        $bookingHns = Booking::whereIn('book_status', [0, 1])->pluck('hn');
+
         $model = Patient::where('death', '<>', 'Y')
                     ->where('hn', '<>', '0000000')
+                    ->whereNotIn('hn', $bookingHns)
                     ->when(count($conditions) > 0, function($q) use ($conditions) {
                         $q->where($conditions);
                     })
