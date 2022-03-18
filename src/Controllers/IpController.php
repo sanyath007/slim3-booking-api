@@ -21,16 +21,29 @@ class IpController extends Controller
         /** ======== Search by patient data section ======== */
         if(!empty($searchStr)) {
             $searches = explode(':', $searchStr);
+
             if(count($searches) > 0) {
-                $fdName = $searches[0] !== 'an' ? 'patient.'.$searches[0] : 'ipt.'.$searches[0];
-                array_push($conditions, [$fdName, 'like', '%'.$searches[1].'%']);
+                if($searches[0] == 'an') {
+                    $fdName = 'ipt.'.$searches[0];
+
+                    array_push($conditions, [$fdName, '=', $searches[1]]);
+                } else if ($searches[0] == 'hn') {
+                    $fdName = 'patient.'.$searches[0];
+
+                    array_push($conditions, [$fdName, '=', $searches[1]]);
+                } else {
+                    list($fname, $lname) = explode(',', $searches[1]);
+
+                    array_push($conditions, ['patient.fname', 'like', $fname.'%']);
+                    array_push($conditions, ['patient.lname', 'like', $lname.'%']);
+                }
             }
         }
         /** ======== Search by patient data section ======== */
 
         if(!empty($ward)) array_push($conditions, ['ward' => $ward]);
 
-        $bookingIds = Booking::whereIn('book_status', [0, 1])->pluck('an');
+        $bookingHns = Booking::whereIn('book_status', [0, 1])->pluck('hn');
 
         $model = Ip::with('patient', 'ward')
                     ->join('patient', 'ipt.hn', '=','patient.hn')
@@ -41,7 +54,7 @@ class IpController extends Controller
                             ->from('ipt_newborn')
                             ->whereColumn('ipt_newborn.an', 'ipt.an');
                     })
-                    ->whereNotIn('an', $bookingIds)
+                    ->whereNotIn('ipt.hn', $bookingHns)
                     ->when(count($conditions) > 0, function($q) use ($conditions) {
                         $q->where($conditions);
                     })
