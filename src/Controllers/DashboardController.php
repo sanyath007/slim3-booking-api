@@ -35,7 +35,7 @@ class DashboardController extends Controller
         $sql="SELECT sum(sum_price) as sum_income 
                 FROM opitemrece
                 WHERE (icode in (select icode from nondrugitems where (income='01') and (name like '%พิเศษ%')))
-                AND (vstdate between '2021-12-01' and '2021-12-31')";
+                AND (vstdate between '2022-03-01' and '2022-03-31')";
 
         return $res->withJson(collect(DB::connection('hos')->select($sql))->first());
     }

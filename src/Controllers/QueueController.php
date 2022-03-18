@@ -26,15 +26,21 @@ class QueueController extends Controller
                     ->when(!empty($depart), function($q) use ($depart, $ip) {
                         if($depart === '1') { //อายุรกรรม
                             $q->whereIn('specialist', ['3'])->where('is_officer', '<>', '1');
-                        } else if($depart === '2') { //ศัลย์กรรมและออร์โธปิดิกส์
-                            $q->whereIn('specialist', ['2','5'])->where('is_officer', '<>', '1');
-                        } else if($depart === '3') { //สูติ-นรีเวชกรรม และ กุมารเวชกรรม
-                            $q->whereIn('specialist', ['1','4'])->where('is_officer', '<>', '1');
-                        } else if($depart === '4') { //โสต ศอ นาสิก
+                        } else if($depart === '2') { //ศัลยกรรม
+                            $q->whereIn('specialist', ['2'])->where('is_officer', '<>', '1');
+                        } else if($depart === '3') { //ออร์โธปิดิกส์
+                            $q->whereIn('specialist', ['5'])->where('is_officer', '<>', '1');
+                        } else if($depart === '4') { //สูติ-นรีเวชกรรม
+                            $q->whereIn('specialist', ['1'])->where('is_officer', '<>', '1');
+                        } else if($depart === '5') { //กุมารเวชกรรม
+                            $q->whereIn('specialist', ['4'])->where('is_officer', '<>', '1');
+                        } else if($depart === '6') { //จักษุ
                             $q->whereIn('specialist', ['6'])->where('is_officer', '<>', '1');
-                        } else if($depart === '5') { //พระภิกษุสงฆ์
+                        } else if($depart === '7') { //โสต ศอ นาสิก
+                            $q->whereIn('specialist', ['7'])->where('is_officer', '<>', '1');
+                        } else if($depart === '8') { //พระภิกษุสงฆ์
                             $q->whereIn('an', $ip)->where('is_officer', '<>', '1');
-                        } else if($depart === '6') { //บุคลากร รพ.
+                        } else if($depart === '9') { //บุคลากร รพ.
                             $q->where('is_officer', '1');
                         }
                     })
