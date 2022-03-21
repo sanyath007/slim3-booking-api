@@ -147,3 +147,7 @@ $container['WardMoveController'] = function($c) {
 $container['IpController'] = function($c) {
     return new App\Controllers\IpController($c);
 };
+
+$container['NewbornController'] = function($c) {
+    return new App\Controllers\NewbornController($c);
+};

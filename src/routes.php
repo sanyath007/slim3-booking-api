@@ -77,6 +77,9 @@ $app->get('/staffs/{id}', 'StaffController:getById');
 $app->get('/ips', 'IpController:getAll');
 $app->get('/ips/{an}', 'IpController:getById');
 
+$app->get('/newborns', 'NewbornController:getAll');
+$app->get('/newborns/{an}', 'NewbornController:getById');
+
 $app->get('/wards', 'WardController:getAll');
 $app->get('/wards/{ward}', 'WardController:getById');
 
