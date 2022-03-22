@@ -24,9 +24,9 @@ class Room extends Model
         return $this->belongsTo(Building::class, 'building', 'building_id');
     }
     
-    public function bookingRoom()
+    public function checkin()
     {
-        return $this->belongsTo(BookingRoom::class, 'room_id', 'room_id');
+        return $this->belongsTo(BookingCheckin::class, 'room_id', 'room_id');
     }
 
     public function amenities()
