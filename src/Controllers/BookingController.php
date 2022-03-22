@@ -6,6 +6,7 @@ use App\Controllers\Controller;
 use Illuminate\Database\Capsule\Manager as DB;
 use App\Models\Booking;
 use App\Models\BookingRoom;
+use App\Models\BookingNewborn;
 use App\Models\Room;
 use App\Models\Patient;
 use App\Models\Ip;
@@ -148,6 +149,20 @@ class BookingController extends Controller
                 $booking->book_status   = 0;
 
                 if($booking->save()) {
+                    /** Insert data to booking_newborn */
+                    if (!empty($post['newborns'])) {
+                        $bookId = $booking->book_id;
+                        /** Split newborns data to array */
+                        $newborns = explode(',', $post['newborns']);
+
+                        foreach($newborns as $newborn) {
+                            $bnb = new BookingNewborn;
+                            $bnb->book_id   = $bookId;
+                            $bnb->an        = $newborn;
+                            $bnb->save();
+                        }
+                    }
+
                     return $response
                             ->withStatus(201)
                             ->withHeader("Content-Type", "application/json")
@@ -207,6 +222,22 @@ class BookingController extends Controller
             $booking->book_status   = 0;
 
             if($booking->save()) {
+                /** Update data to booking_newborn */
+                if (!empty($post['newborns'])) {
+                    $bookId = $booking->book_id;
+                    /** Delete all booking_newborn data of updated booking */
+                    BookingNewborn::where('book_id', $bookId)->delete();
+                    /** Split newborns data to array */
+                    $newborns = explode(',', $post['newborns']);
+
+                    foreach($newborns as $newborn) {
+                        $bnb = new BookingNewborn;
+                        $bnb->book_id   = $bookId;
+                        $bnb->an        = $newborn;
+                        $bnb->save();
+                    }
+                }
+
                 return $response
                         ->withStatus(200)
                         ->withHeader("Content-Type", "application/json")
