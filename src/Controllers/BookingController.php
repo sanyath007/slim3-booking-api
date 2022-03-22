@@ -139,7 +139,7 @@ class BookingController extends Controller
                 $booking->specialist    = $post['specialist'];
                 $booking->room_types    = $post['room_types'];
                 $booking->in_labour     = $post['in_labour'];
-                $booking->newborn       = $post['newborn'];
+                $booking->newborns      = $post['newborns'];
                 $booking->is_officer    = $post['is_officer'];
                 $booking->description   = $post['description'];
                 $booking->remark        = $post['remark'];
@@ -199,7 +199,7 @@ class BookingController extends Controller
             $booking->specialist    = $post['specialist'];
             $booking->room_types    = $post['room_types'];
             $booking->in_labour     = $post['in_labour'];
-            $booking->newborn       = $post['newborn'];
+            $booking->newborns      = $post['newborns'];
             $booking->is_officer    = $post['is_officer'];
             $booking->description   = $post['description'];
             $booking->remark        = $post['remark'];
