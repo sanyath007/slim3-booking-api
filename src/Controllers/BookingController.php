@@ -350,6 +350,9 @@ class BookingController extends Controller
             // TODO: ถ้าผู้ป่วยถูกรับเข้าห้องแล้วให้ response กลับพร้อม message แจ้ง
             if ($isCheckedIn == 0) {
                 if(Booking::where('book_id', $args['id'])->delete()) {
+                    /** Delete all booking_newborn data of updated booking */
+                    BookingNewborn::where('book_id', $args['id'])->delete();
+
                     return $response
                             ->withStatus(200)
                             ->withHeader("Content-Type", "application/json")
