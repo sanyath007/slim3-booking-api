@@ -50,7 +50,7 @@ class DashboardController extends Controller
                 COUNT(case when (r.room_type='1') then r.room_id end) as std,
                 COUNT(case when (r.room_type='2') then r.room_id end) as vip,
                 COUNT(case when (r.room_type='3') then r.room_id end) as vvip
-                FROM booking_rooms br 
+                FROM booking_checkins br 
                 left join rooms r on (br.room_id=r.room_id)
                 WHERE (br.checkin_date BETWEEN ? AND ?) ";
 
