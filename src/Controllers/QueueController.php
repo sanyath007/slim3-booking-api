@@ -24,8 +24,8 @@ class QueueController extends Controller
 
         $model = Booking::with('patient','patient.admit','patient.admit.ward','room','user')
                     ->when(!empty($depart), function($q) use ($depart, $ip) {
-                        if($depart === '1') { //อายุรกรรม
-                            $q->whereIn('specialist', ['3'])->where('is_officer', '<>', '1');
+                        if($depart === '1') { //อายุรกรรม หรือ อื่นๆ
+                            $q->whereIn('specialist', ['3','8'])->where('is_officer', '<>', '1');
                         } else if($depart === '2') { //ศัลยกรรม
                             $q->whereIn('specialist', ['2'])->where('is_officer', '<>', '1');
                         } else if($depart === '3') { //ออร์โธปิดิกส์
