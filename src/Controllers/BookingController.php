@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Controllers\Controller;
 use Illuminate\Database\Capsule\Manager as DB;
 use App\Models\Booking;
-use App\Models\BookingRoom;
+use App\Models\BookingCheckin;
 use App\Models\BookingNewborn;
 use App\Models\Room;
 use App\Models\Patient;
@@ -56,7 +56,7 @@ class BookingController extends Controller
             /** ======== Search by patient data section ======== */
 
             $model = Booking::with('patient','patient.admit','patient.admit.ward')
-                        ->with('newborns','newborns.ip','newborns.ip.patient','room','user')
+                        ->with('newborns','newborns.ip','newborns.ip.patient','checkin','user')
                         ->when(!empty($searchStr) ,function($q) use ($patientList) {
                             $q->whereIn('hn', $patientList)->select();
                         })
@@ -85,7 +85,7 @@ class BookingController extends Controller
         $booking = Booking::where('book_id', $args['id'])
                             ->with('patient','patient.address','patient.admit')
                             ->with('patient.admit.pttype','patient.admit.admdoctor','patient.admit.ward')
-                            ->with('newborns','newborns.ip','newborns.ip.patient','room','user')
+                            ->with('newborns','newborns.ip','newborns.ip.patient','checkin','user')
                             ->first();
 
         return $response
@@ -110,8 +110,9 @@ class BookingController extends Controller
 
         $model = Booking::where('hn', $args['hn'])
                     ->where('book_id', '<>', $args['id'])
-                    ->with('patient','patient.admit','patient.admit.ward','room','user')
-                    ->with('patient.admit.pttype','patient.admit.admdoctor','patient.address');
+                    ->with('patient','patient.admit','patient.admit.ward')
+                    ->with('patient.admit.pttype','patient.admit.admdoctor','patient.address')
+                    ->with('checkin','checkin.room','user');
 
         $bookings = paginate($model, 10, $page, $request);
 
@@ -344,7 +345,7 @@ class BookingController extends Controller
     {
         try {
             /** ตรวจสอบว่าผู้ป่วยถูกรับเข้าห้องหรือยัง */
-            $isCheckedIn = BookingRoom::where('book_id', $args['id'])->count();
+            $isCheckedIn = BookingCheckin::where('book_id', $args['id'])->count();
 
             // TODO: ถ้าผู้ป่วยถูกรับเข้าห้องแล้วให้ response กลับพร้อม message แจ้ง
             if ($isCheckedIn == 0) {
@@ -391,7 +392,7 @@ class BookingController extends Controller
         try {
             $post = (array)$request->getParsedBody();
 
-            if(BookingRoom::where(['book_id' => $args['id'], 'room_id' => $args['roomId']])->delete()) {
+            if(BookingCheckin::where(['book_id' => $args['id'], 'room_id' => $args['roomId']])->delete()) {
                 Booking::where('book_id', $args['id'])->update([
                     'book_status'   => 0,
                     'updated_by'    => $post['user']
@@ -430,7 +431,7 @@ class BookingController extends Controller
         try {
             $post = (array)$request->getParsedBody();
             
-            $br = new BookingRoom();
+            $br = new BookingCheckin();
             $br->book_id        = $post['bookId'];
             $br->room_id        = $post['roomId'];
             $br->checkin_date   = $post['checkinDate'];
@@ -481,7 +482,7 @@ class BookingController extends Controller
         try {
             $post = (array)$request->getParsedBody();
 
-            $br = BookingRoom::where('book_id', $args['id'])
+            $br = BookingCheckin::where('book_id', $args['id'])
                     ->where('room_id', $args['roomId'])
                     ->update([
                         'checkout_date' => date('Y-m-d'),
@@ -529,7 +530,7 @@ class BookingController extends Controller
         try {
             $post = (array)$request->getParsedBody();
 
-            $br = BookingRoom::where('book_id', $args['id'])->first();
+            $br = BookingCheckin::where('book_id', $args['id'])->first();
             /** Retrieve old room id  */
             $oldRoom = $br->room_id;
 

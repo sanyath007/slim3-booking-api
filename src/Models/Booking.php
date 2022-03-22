@@ -9,9 +9,9 @@ class Booking extends Model
     protected $table = "bookings";
     protected $primaryKey = 'book_id';
 
-    public function room()
+    public function checkin()
     {
-        return $this->hasMany(BookingRoom::class, 'book_id', 'book_id');
+        return $this->hasOne(BookingCheckin::class, 'book_id', 'book_id');
     }
 
     public function ward()
