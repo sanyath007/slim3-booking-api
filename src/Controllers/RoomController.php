@@ -7,6 +7,7 @@ use Illuminate\Database\Capsule\Manager as DB;
 use Respect\Validation\Validator as v;
 use App\Models\Room;
 use App\Models\RoomAmenities;
+use App\Models\BookingCheckin;
 
 class RoomController extends Controller
 {
@@ -64,15 +65,14 @@ class RoomController extends Controller
                     ->with('roomType')
                     ->orderBy('room_no')
                     ->get();
-        $usedRooms = Room::where(['room_status' => 1])
-                    ->with('checkin', 'checkin.booking')
-                    ->with('checkin.booking.patient', 'checkin.booking.patient.admit')
-                    ->orderBy('room_no')
+        $checkedins = BookingCheckin::whereNull('checkout_date')
+                    ->with('booking','booking.patient','booking.patient.admit')
+                    ->orderBy('room_id')
                     ->get();
 
         $data = json_encode([
-            'rooms' => $rooms, 
-            'usedRooms' => $usedRooms
+            'rooms'         => $rooms, 
+            'checkedins'    => $checkedins
         ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT |  JSON_UNESCAPED_UNICODE);
 
         return $response->withStatus(200)
