@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Controllers\Controller;
 use Illuminate\Database\Capsule\Manager as DB;
 use App\Models\Booking;
-use App\Models\BookingRoom;
+use App\Models\BookingCheckin;
 use App\Models\Room;
 use App\Models\Ip;
 
@@ -22,7 +22,7 @@ class QueueController extends Controller
                     ->pluck('ipt.an');
         /** ======== พระภิกษุสงฆ์ Filtered ======== */
 
-        $model = Booking::with('patient','patient.admit','patient.admit.ward','room','user')
+        $model = Booking::with('patient','patient.admit','patient.admit.ward','checkin','user')
                     ->when(!empty($depart), function($q) use ($depart, $ip) {
                         if($depart === '1') { //อายุรกรรม หรือ อื่นๆ
                             $q->whereIn('specialist', ['3','8'])->where('is_officer', '<>', '1');
@@ -230,7 +230,7 @@ class QueueController extends Controller
     public function cancelCheckin($request, $response, $args)
     {
         try {
-            if(BookingRoom::where(['book_id' => $args['id'], 'room_id' => $args['roomId']])->delete()) {
+            if(BookingCheckin::where(['book_id' => $args['id'], 'room_id' => $args['roomId']])->delete()) {
                 Booking::where('book_id', $args['id'])->update(['book_status' => 0]);
                 Room::where('room_id', $args['roomId'])->update(['room_status' => 0]);
 
